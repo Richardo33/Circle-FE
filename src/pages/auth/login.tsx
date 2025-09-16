@@ -76,6 +76,7 @@ function Login() {
             placeholder="Email/Username"
             className="text-white"
             required
+            autoComplete="off"
             onChange={handleChange}
           />
           <Input

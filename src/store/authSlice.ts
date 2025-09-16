@@ -1,11 +1,21 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface User {
+// Interface sesuai response backend
+export interface UserResponse {
   id: string;
   email: string;
   full_name: string;
   username?: string;
-  avatar?: string;
+  photo_profile?: string | null; // path dari backend
+}
+
+// Interface frontend
+export interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  username?: string;
+  avatar?: string | null; // simpan path relatif dari backend
 }
 
 interface AuthState {
@@ -26,12 +36,23 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ token: string; user: User }>
+      action: PayloadAction<{ token: string; user: UserResponse }>
     ) => {
+      const userResp = action.payload.user;
+
+      const mappedUser: User = {
+        id: userResp.id,
+        email: userResp.email,
+        full_name: userResp.full_name,
+        username: userResp.username,
+        avatar: userResp.photo_profile || null, // path relatif
+      };
+
       state.token = action.payload.token;
-      state.user = action.payload.user;
+      state.user = mappedUser;
+
       localStorage.setItem("token", action.payload.token);
-      localStorage.setItem("user", JSON.stringify(action.payload.user));
+      localStorage.setItem("user", JSON.stringify(mappedUser));
     },
     logout: (state) => {
       state.token = null;

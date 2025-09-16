@@ -2,9 +2,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { Home, UserRoundSearch, User, Heart, LogOut } from "lucide-react";
 import { Circle } from "@/assets/image";
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/authSlice";
 
 export default function SidebarCompact() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
@@ -12,9 +15,16 @@ export default function SidebarCompact() {
         method: "POST",
         credentials: "include",
       });
-      if (res.ok) navigate("/");
+
+      if (!res.ok) {
+        console.error("Logout gagal dari server");
+      }
     } catch (err) {
       console.error("Error logout:", err);
+    } finally {
+      console.log(">>> SidebarCompact logout jalan");
+      dispatch(logout()); // hapus token + user di redux & localStorage
+      navigate("/");
     }
   };
 

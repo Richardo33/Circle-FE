@@ -2,9 +2,12 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Home, UserRoundSearch, User, Heart, LogOut } from "lucide-react";
 import { Circle } from "@/assets/image";
 import { Button } from "@/components/ui/button";
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/authSlice";
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
@@ -13,13 +16,16 @@ export default function Sidebar() {
         credentials: "include",
       });
 
-      if (res.ok) {
-        navigate("/");
-      } else {
-        console.error("Logout gagal");
+      if (!res.ok) {
+        console.error("Logout gagal dari server");
       }
     } catch (err) {
       console.error("Error logout:", err);
+    } finally {
+      console.log(">>> SEBELUM DISPATCH");
+      dispatch(logout());
+      console.log(">>> SESUDAH DISPATCH");
+      navigate("/");
     }
   };
 
@@ -60,20 +66,20 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        <Button className="w-full text-2xl py-6 rounded-3xl bg-green-600 font-semibold text-white hover:bg-green-500">
+        <Button className="w-full cursor-pointer text-2xl py-6 rounded-3xl bg-[#04A51E] font-semibold text-white hover:bg-green-600">
           Create Post
         </Button>
       </div>
 
       <div>
-        <NavLink
-          to="/"
-          onClick={handleLogout}
-          className="flex text-[18px] items-center gap-5 px-4 py-4 rounded-2xl font-medium transition-colors text-gray-300 hover:text-red-500 hover:bg-gray-800/30"
+        <button
+          onClick={() => {
+            handleLogout();
+          }}
+          className="flex w-full text-[18px] items-center gap-5 px-4 py-4 rounded-2xl font-medium transition-colors text-gray-300 hover:text-red-500 hover:bg-gray-800/30 cursor-pointer"
         >
-          {" "}
-          <LogOut size={30} /> <span>Logout</span>{" "}
-        </NavLink>
+          <LogOut size={30} /> <span>Logout</span>
+        </button>
       </div>
     </aside>
   );

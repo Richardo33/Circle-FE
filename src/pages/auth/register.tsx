@@ -1,10 +1,11 @@
-// import React from "react";
 import { Logo } from "@/assets/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/store/authSlice";
 
 function Register() {
   const [form, setForm] = useState({
@@ -14,6 +15,7 @@ function Register() {
   });
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,10 +27,24 @@ function Register() {
       const res = await axios.post(
         "http://localhost:3000/api/v1/auth/register",
         form,
-        { withCredentials: true }
+        { withCredentials: true } // penting supaya httpOnly cookie ikut dikirim
       );
 
-      console.log("Respon:", res.data);
+      console.log("Register response:", res.data);
+
+      const data = res.data.data;
+      const token = data.token;
+      const user = {
+        id: data.user_id,
+        email: data.email,
+        full_name: data.name,
+        username: data.username || data.email.split("@")[0],
+        avatar: data.avatar || null,
+      };
+
+      // simpan ke Redux + localStorage
+      dispatch(setCredentials({ token, user }));
+
       navigate("/thread");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -64,6 +80,7 @@ function Register() {
             placeholder="Full Name"
             required
             onChange={handleChange}
+            autoComplete="off"
             className="px-4 py-5 border text-white border-gray-500 rounded-md"
           />
           <Input
@@ -71,6 +88,7 @@ function Register() {
             name="email"
             placeholder="Email"
             required
+            autoComplete="off"
             onChange={handleChange}
             className="px-4 py-5 border text-white border-gray-500 rounded-md"
           />
@@ -84,8 +102,8 @@ function Register() {
           />
 
           <Button
-            variant="default"
-            className="w-full py-6 px-4  hover:bg-green-600 font-semibold text-2xl text-white rounded-4xl cursor-pointer"
+            type="submit"
+            className="w-full py-6 px-4 hover:bg-green-600 font-semibold text-2xl text-white rounded-4xl cursor-pointer"
           >
             Create
           </Button>
