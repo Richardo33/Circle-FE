@@ -1,5 +1,6 @@
 import { Heart, MessageSquareText, UserCircle } from "lucide-react";
 import { formatRelative } from "@/utils/formatDate";
+import { Link } from "react-router-dom";
 
 const BACKEND_URL = "http://localhost:3000";
 
@@ -48,27 +49,29 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
         )}
 
         <div className="flex-1">
-          <div>
-            <p className="font-semibold">
-              {thread.user.name}{" "}
-              <span className="text-sm text-gray-400">
-                • {formatRelative(thread.created_at)}
-              </span>
-            </p>
-            <p className="text-sm text-gray-400">@{thread.user.username}</p>
-          </div>
-
-          <p className="mt-2">{thread.content}</p>
-
-          {threadImageUrl && (
-            <div className="mt-3">
-              <img
-                src={threadImageUrl}
-                alt="Thread attachment"
-                className="rounded-xl max-h-96 object-cover border border-gray-700"
-              />
+          <Link to={`/thread/${thread.id}`}>
+            <div>
+              <p className="font-semibold">
+                {thread.user.name}{" "}
+                <span className="text-sm text-gray-400">
+                  • {formatRelative(thread.created_at)}
+                </span>
+              </p>
+              <p className="text-sm text-gray-400">@{thread.user.username}</p>
             </div>
-          )}
+
+            <p className="mt-2 ">{thread.content}</p>
+
+            {threadImageUrl && (
+              <div className="mt-3">
+                <img
+                  src={threadImageUrl}
+                  alt="Thread attachment"
+                  className="rounded-xl max-h-96 object-cover border border-gray-700"
+                />
+              </div>
+            )}
+          </Link>
 
           <div className="flex space-x-6 text-gray-400 text-sm mt-2">
             <button

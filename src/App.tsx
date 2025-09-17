@@ -8,6 +8,7 @@ import Thread from "./pages/thread";
 import Search from "./pages/search";
 import Follows from "./pages/follows";
 import Profile from "./pages/profile";
+import ThreadDetail from "./pages/threadDetail";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/resetPassword" element={<ResetPassword />} />
           <Route element={<PrivateRoute />}>
             <Route path="/thread" element={<Thread />} />
+            <Route path="/thread/:id" element={<ThreadDetail />} />
             <Route path="/search" element={<Search />} />
             <Route path="/follows" element={<Follows />} />
             <Route path="/profile" element={<Profile />} />
