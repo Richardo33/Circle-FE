@@ -8,14 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ThreadCard, { type ThreadType } from "@/components/threadCard";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
 function Thread() {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [threads, setThreads] = useState<ThreadType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [content, setContent] = useState("");
 
   const handleFileClick = () => {
     fileInputRef.current?.click();
@@ -26,6 +30,49 @@ function Thread() {
     if (file) {
       const url = URL.createObjectURL(file);
       setPreview(url);
+    }
+  };
+
+  const handlePostThread = async () => {
+    if (!content && !fileInputRef.current?.files?.[0]) {
+      return alert("Isi content atau pilih gambar!");
+    }
+
+    const formData = new FormData();
+    formData.append("content", content);
+    if (fileInputRef.current?.files?.[0]) {
+      formData.append("image", fileInputRef.current.files[0]);
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/v1/thread/threads",
+        formData,
+        { withCredentials: true }
+      );
+
+      const newThread: ThreadType = {
+        id: res.data.data.tweet.id,
+        content: res.data.data.tweet.content,
+        image: res.data.data.tweet.image_url,
+        user: {
+          id: user!.id, // ambil dari Redux store
+          username: user!.username,
+          name: user!.full_name,
+          profile_picture: user!.avatar, // ambil avatar yang sudah ada
+        },
+        created_at: res.data.data.tweet.timestamp,
+        likes: 0,
+        reply: 0,
+        isLiked: false,
+      };
+
+      setThreads((prev) => [newThread, ...prev]); // push di atas
+      setContent("");
+      removePreview();
+      setOpen(false);
+    } catch (err) {
+      console.error("Error posting thread:", err);
     }
   };
 
@@ -123,6 +170,8 @@ function Thread() {
                   placeholder="What is happening?!"
                   className="w-full bg-transparent resize-none outline-none border-0 focus:border-0 focus:ring-0 text-white placeholder-gray-400"
                   rows={4}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
                 />
               </div>
 
@@ -159,7 +208,10 @@ function Thread() {
                 >
                   <ImageUp className="w-6 h-6 text-green-400" />
                 </Button>
-                <Button className="px-5 bg-green-600 rounded-2xl font-semibold hover:bg-green-500">
+                <Button
+                  className="px-5 bg-green-600 rounded-2xl font-semibold hover:bg-green-500"
+                  onClick={handlePostThread}
+                >
                   Post
                 </Button>
               </div>

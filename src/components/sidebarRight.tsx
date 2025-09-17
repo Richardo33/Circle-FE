@@ -7,7 +7,6 @@ const BACKEND_URL = "http://localhost:3000/profile";
 function SidebarRight() {
   const user = useSelector((state: RootState) => state.auth.user);
 
-  // gunain path relatif dari store, gabung dengan BACKEND_URL
   const avatarUrl = user?.avatar ? `${BACKEND_URL}${user.avatar}` : null;
 
   return (

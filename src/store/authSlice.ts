@@ -1,21 +1,21 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-// Interface sesuai response backend
+// Response backend
 export interface UserResponse {
   id: string;
   email: string;
   full_name: string;
   username?: string;
-  photo_profile?: string | null; // path dari backend
+  photo_profile?: string | null;
 }
 
-// Interface frontend
+// Frontend interface
 export interface User {
   id: string;
   email: string;
   full_name: string;
-  username?: string;
-  avatar?: string | null; // simpan path relatif dari backend
+  username: string;
+  avatar: string | null;
 }
 
 interface AuthState {
@@ -44,8 +44,8 @@ const authSlice = createSlice({
         id: userResp.id,
         email: userResp.email,
         full_name: userResp.full_name,
-        username: userResp.username,
-        avatar: userResp.photo_profile || null, // path relatif
+        username: userResp.username || userResp.email.split("@")[0],
+        avatar: userResp.photo_profile ?? null, // pastikan string | null
       };
 
       state.token = action.payload.token;
@@ -54,6 +54,7 @@ const authSlice = createSlice({
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("user", JSON.stringify(mappedUser));
     },
+
     logout: (state) => {
       state.token = null;
       state.user = null;

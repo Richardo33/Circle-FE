@@ -1,19 +1,19 @@
 import { Heart, MessageSquareText, UserCircle } from "lucide-react";
 import { formatRelative } from "@/utils/formatDate";
 
-const BACKEND_URL = "http://localhost:3000"; // backend prefix
+const BACKEND_URL = "http://localhost:3000";
 
 interface User {
   id: string;
   username: string;
   name: string;
-  profile_picture: string | null; // path dari backend
+  profile_picture: string | null;
 }
 
 export interface ThreadType {
   id: string;
   content: string;
-  image: string | null; // path dari backend
+  image: string | null;
   user: User;
   created_at: string;
   likes: number;
