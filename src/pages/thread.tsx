@@ -1,36 +1,37 @@
 import { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
+import axios from "axios";
+import { ImageUp, X } from "lucide-react";
+
 import Sidebar from "@/components/sidebar";
 import SidebarCompact from "@/components/sidebarCompact";
 import SidebarRight from "@/components/sidebarRight";
-import axios from "axios";
-import { ImageUp, X } from "lucide-react";
+import ThreadCard, { type ThreadType } from "@/components/threadCard";
+import { Dialog, DialogContent, DialogOverlay } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import ThreadCard, { type ThreadType } from "@/components/threadCard";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store/store";
+import { socket } from "@/utils/socket";
 
 function Thread() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useSelector((state: RootState) => state.auth.user);
   const [threads, setThreads] = useState<ThreadType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [content, setContent] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileClick = () => {
-    fileInputRef.current?.click();
-  };
-
+  const handleFileClick = () => fileInputRef.current?.click();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreview(url);
-    }
+    if (file) setPreview(URL.createObjectURL(file));
+  };
+  const removePreview = () => {
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handlePostThread = async () => {
@@ -45,41 +46,17 @@ function Thread() {
     }
 
     try {
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:3000/api/v1/thread/threads",
         formData,
         { withCredentials: true }
       );
 
-      const newThread: ThreadType = {
-        id: res.data.data.tweet.id,
-        content: res.data.data.tweet.content,
-        image: res.data.data.tweet.image_url,
-        user: {
-          id: user!.id, // ambil dari Redux store
-          username: user!.username,
-          name: user!.full_name,
-          profile_picture: user!.avatar, // ambil avatar yang sudah ada
-        },
-        created_at: res.data.data.tweet.timestamp,
-        likes: 0,
-        reply: 0,
-        isLiked: false,
-      };
-
-      setThreads((prev) => [newThread, ...prev]); // push di atas
       setContent("");
       removePreview();
       setOpen(false);
     } catch (err) {
       console.error("Error posting thread:", err);
-    }
-  };
-
-  const removePreview = () => {
-    setPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
     }
   };
 
@@ -90,7 +67,6 @@ function Thread() {
           "http://localhost:3000/api/v1/thread/threads",
           { withCredentials: true }
         );
-        console.log("Threads fetched:", res.data.data.threads);
         setThreads(res.data.data.threads as ThreadType[]);
       } catch (err) {
         console.error("Error fetch threads:", err);
@@ -100,10 +76,19 @@ function Thread() {
     };
 
     fetchThreads();
+
+    const handleNewThread = (newThread: ThreadType) => {
+      setThreads((prev) => [newThread, ...prev]);
+    };
+
+    socket.on("new-thread", handleNewThread);
+
+    return () => {
+      socket.off("new-thread", handleNewThread);
+    };
   }, []);
 
   const handleLike = (id: string) => {
-    console.log("Liked thread:", id);
     setThreads((prev) =>
       prev.map((t) =>
         t.id === id
@@ -116,13 +101,12 @@ function Thread() {
       )
     );
   };
-
   const handleReply = (id: string) => {
     console.log("Reply to thread:", id);
   };
 
   return (
-    <div className="min-h-full text-white grid grid-cols-12 gap-4 px-4 sm:px-6">
+    <div className="scroll-lock min-h-full text-white grid grid-cols-12 gap-4 px-4 sm:px-6">
       <div className="hidden lg:block col-span-3">
         <Sidebar />
       </div>
@@ -141,21 +125,14 @@ function Thread() {
         >
           <Textarea
             placeholder="What is happening?!"
-            className="flex-1 bg-transparent resize-none outline-none border-none ring-0 focus:ring-0 focus:border-none focus-visible:ring-0 text-white placeholder-gray-400 p-2"
+            className="flex-1 bg-transparent resize-none outline-none border-none ring-0 focus:ring-0 text-white placeholder-gray-400 p-2"
             rows={2}
             readOnly
           />
-
           <div className="flex items-center gap-2 h-fit">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full hover:bg-gray-700 cursor-pointer"
-              type="button"
-            >
+            <Button variant="ghost" size="icon">
               <ImageUp className="w-6 h-6 text-green-400" />
             </Button>
-
             <Button className="px-5 bg-green-600 rounded-2xl font-semibold hover:bg-green-500">
               Post
             </Button>
@@ -163,6 +140,7 @@ function Thread() {
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>
+          <DialogOverlay className="fixed inset-0 bg-black/50" />
           <DialogContent className="bg-[#262626] text-white border border-gray-700 max-w-lg">
             <div className="space-y-3">
               <div className="pb-3 py-5 border-b border-gray-700">
@@ -199,13 +177,7 @@ function Thread() {
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full hover:bg-gray-700 cursor-pointer"
-                  type="button"
-                  onClick={handleFileClick}
-                >
+                <Button variant="ghost" size="icon" onClick={handleFileClick}>
                   <ImageUp className="w-6 h-6 text-green-400" />
                 </Button>
                 <Button
@@ -230,7 +202,6 @@ function Thread() {
               onReply={handleReply}
             />
           ))}
-
           {!loading && threads.length === 0 && (
             <p className="text-gray-400 text-center mt-4">
               Belum ada postingan.

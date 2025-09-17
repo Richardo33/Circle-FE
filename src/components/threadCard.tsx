@@ -73,9 +73,9 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
           <div className="flex space-x-6 text-gray-400 text-sm mt-2">
             <button
               onClick={() => onLike?.(thread.id)}
-              className={`flex items-center gap-2 hover:text-red-500 transition-colors ${
-                thread.isLiked ? "text-red-500" : ""
-              }`}
+              className={
+                "flex items-center gap-2 transition-colors hover:text-red-500"
+              }
             >
               <Heart
                 size={18}
