@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/store/authSlice";
+import { Camera } from "lucide-react";
 
 function Register() {
   const [form, setForm] = useState({
@@ -13,6 +14,8 @@ function Register() {
     email: "",
     password: "",
   });
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -21,16 +24,33 @@ function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selected = e.target.files[0];
+      setFile(selected);
+      setPreview(URL.createObjectURL(selected));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const formData = new FormData();
+      formData.append("full_name", form.full_name);
+      formData.append("email", form.email);
+      formData.append("password", form.password);
+      if (file) {
+        formData.append("profileImage", file);
+      }
+
       const res = await axios.post(
         "http://localhost:3000/api/v1/auth/register",
-        form,
-        { withCredentials: true } // penting supaya httpOnly cookie ikut dikirim
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
-
-      console.log("Register response:", res.data);
 
       const data = res.data.data;
       const token = data.token;
@@ -39,7 +59,7 @@ function Register() {
         email: data.email,
         full_name: data.name,
         username: data.username || data.email.split("@")[0],
-        avatar: data.avatar || null,
+        avatar: data.photo_profile || null,
       };
 
       // simpan ke Redux + localStorage
@@ -63,6 +83,7 @@ function Register() {
   return (
     <div className="flex items-center justify-center min-h-screen px-8 bg-blend-darken">
       <div className="w-full max-w-md space-y-4">
+        {/* Logo */}
         <div>
           <img
             src={Logo}
@@ -70,10 +91,46 @@ function Register() {
             className="w-[108px] h-auto object-contain"
           />
         </div>
+
         <h1 className="text-3xl font-semibold text-white">
           Create account Circle
         </h1>
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col space-y-4"
+          encType="multipart/form-data"
+        >
+          {/* Upload Avatar */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative w-24 h-24">
+              <img
+                src={
+                  preview ||
+                  "https://ui-avatars.com/api/?name=Circle&background=1a1a1a&color=fff"
+                }
+                alt="Avatar Preview"
+                className="w-24 h-24 rounded-full object-cover border-2 border-gray-600"
+              />
+              <label
+                htmlFor="profileImage"
+                className="absolute bottom-0 right-0 bg-green-600 p-2 rounded-full cursor-pointer hover:bg-green-500"
+              >
+                <Camera className="w-4 h-4 text-white" />
+              </label>
+            </div>
+
+            <input
+              id="profileImage"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <p className="text-sm text-gray-400">Upload your profile picture</p>
+          </div>
+
+          {/* Input Fields */}
           <Input
             type="text"
             name="full_name"

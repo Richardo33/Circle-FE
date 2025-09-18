@@ -2,12 +2,12 @@ import type { RootState } from "@/store/store";
 import { UserCircle } from "lucide-react";
 import { useSelector } from "react-redux";
 
-const BACKEND_URL = "http://localhost:3000/profile";
+const BASE_URL = "http://localhost:3000/profile";
 
 function SidebarRight() {
   const user = useSelector((state: RootState) => state.auth.user);
 
-  const avatarUrl = user?.avatar ? `${BACKEND_URL}${user.avatar}` : null;
+  const avatarUrl = user?.avatar ? `${BASE_URL}${user.avatar}` : null;
 
   return (
     <aside className="col-span-3 space-y-4 h-screen sticky top-0 pt-4 border-l p-8 border-gray-700">

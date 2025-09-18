@@ -1,14 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import PrivateRoute from "./lib/privateRoutes";
-import Login from "./pages/auth/login";
-import Register from "./pages/auth/register";
-import ForgotPassword from "./pages/auth/forgotPassword";
-import ResetPassword from "./pages/auth/resetPassword";
-import Thread from "./pages/thread";
-import Search from "./pages/search";
-import Follows from "./pages/follows";
-import Profile from "./pages/profile";
-import ThreadDetail from "./pages/threadDetail";
+import PrivateRoute from "@/lib/privateRoutes";
+import Login from "@/pages/auth/login";
+import Register from "@/pages/auth/register";
+import ForgotPassword from "@/pages/auth/forgotPassword";
+import ResetPassword from "@/pages/auth/resetPassword";
+import Thread from "@/pages/thread";
+import Search from "@/pages/search";
+import Follows from "@/pages/follows";
+import Profile from "@/pages/profile";
+import ThreadDetail from "@/pages/threadDetail";
 
 function App() {
   return (

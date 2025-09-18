@@ -10,9 +10,10 @@ import {
   UserCircle,
   ArrowLeft,
   ImageUp,
+  X,
 } from "lucide-react";
 import { formatRelative } from "@/utils/formatDate";
-import type { ThreadType } from "@/components/threadCard";
+import type { ThreadDetailType } from "@/types/thread";
 import type { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,50 +23,138 @@ const BACKEND_URL = "http://localhost:3000";
 
 function ThreadDetail() {
   const { id } = useParams<{ id: string }>();
-  const [thread, setThread] = useState<ThreadType | null>(null);
+  const [thread, setThread] = useState<ThreadDetailType | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [reply, setReply] = useState("");
+  const [replyImage, setReplyImage] = useState<File | null>(null);
+  const [posting, setPosting] = useState(false);
+
+  const [, setIsPostOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Ambil user dari Redux
   const user = useSelector((state: RootState) => state.auth.user);
+  const token = useSelector((state: RootState) => state.auth.token);
+
+  const fetchThread = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${BACKEND_URL}/api/v1/thread/${id}`, {
+        withCredentials: true,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      setThread(res.data.data.thread);
+    } catch (err) {
+      console.error("Error fetching thread:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchThread = async () => {
-      try {
-        const res = await axios.get(`${BACKEND_URL}/api/v1/thread/${id}`, {
-          withCredentials: true,
-        });
-        setThread(res.data.data.thread);
-      } catch (err) {
-        console.error("Error fetching thread:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchThread();
+    if (id) fetchThread();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const handleReply = async () => {
-    if (!reply.trim()) return;
+  const handleLike = async () => {
+    if (!thread) return;
+
+    setThread((prev) =>
+      prev
+        ? {
+            ...prev,
+            isLiked: !prev.isLiked,
+            likes: prev.isLiked ? prev.likes - 1 : prev.likes + 1,
+          }
+        : prev
+    );
 
     try {
-      await axios.post(
-        `${BACKEND_URL}/api/v1/thread/${id}/reply`,
-        { content: reply },
-        { withCredentials: true }
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/like/${thread.id}`,
+        {},
+        { withCredentials: true, headers }
       );
-      setReply("");
+
+      console.log("Like response (detail):", res.data);
+
+      setThread((prev) =>
+        prev
+          ? {
+              ...prev,
+              isLiked: res.data.liked,
+              likes: res.data.likes,
+            }
+          : prev
+      );
     } catch (err) {
-      console.error("Error posting reply:", err);
+      console.error("Error liking thread:", err);
+
+      setThread((prev) =>
+        prev
+          ? {
+              ...prev,
+              isLiked: !prev.isLiked,
+              likes: prev.isLiked ? prev.likes - 1 : prev.likes + 1,
+            }
+          : prev
+      );
+    }
+  };
+
+  const handleReply = async () => {
+    if (!reply.trim() && !replyImage) return;
+
+    try {
+      setPosting(true);
+
+      const formData = new FormData();
+      formData.append("content", reply);
+      if (replyImage) formData.append("replyImage", replyImage);
+
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      // console.log("Posting reply — hasImage:", !!replyImage, "content:", reply);
+
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/reply/${id}`,
+        formData,
+        {
+          withCredentials: true,
+          headers,
+        }
+      );
+
+      console.log("Reply response:", res.data);
+
+      await fetchThread();
+
+      setReply("");
+      setReplyImage(null);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error(
+          "Error posting reply:",
+          err.response?.data || err.message
+        );
+      } else if (err instanceof Error) {
+        console.error("Unexpected error:", err.message);
+      } else {
+        console.error("Unknown error:", err);
+      }
+    } finally {
+      setPosting(false);
     }
   };
 
   return (
     <div className="scroll-lock min-h-full text-white grid grid-cols-12 gap-4 px-4 sm:px-6">
       <div className="hidden lg:block col-span-3">
-        <Sidebar />
+        <Sidebar onOpenPost={() => setIsPostOpen(true)} />
       </div>
       <div className="hidden md:block lg:hidden col-span-2">
         <SidebarCompact />
@@ -79,7 +168,7 @@ function ThreadDetail() {
           >
             <ArrowLeft size={22} />
           </button>
-          <h1 className="text-2xl font-bold">Thread Detail</h1>
+          <h1 className="text-2xl font-bold">Status</h1>
         </div>
 
         {loading && <p className="text-gray-400">Loading...</p>}
@@ -121,10 +210,15 @@ function ThreadDetail() {
                   </div>
 
                   <div className="flex space-x-6 text-gray-400 text-sm mt-4">
-                    <button className="flex items-center gap-2 hover:text-red-500 transition-colors">
+                    <button
+                      onClick={handleLike}
+                      className="flex items-center gap-2 hover:text-red-500 transition-colors"
+                    >
                       <Heart
                         size={18}
-                        className={thread.isLiked ? "fill-red-500" : ""}
+                        className={
+                          thread.isLiked ? "fill-red-500 text-red-500" : ""
+                        }
                       />
                       {thread.likes}
                     </button>
@@ -154,7 +248,7 @@ function ThreadDetail() {
               )}
 
               <div className="flex-1">
-                <div className="flex items-start gap-3 pb-3">
+                <div className="flex items-start gap-3">
                   <Textarea
                     placeholder="What is happening?!"
                     className="flex-1 bg-transparent resize-none outline-none border-none ring-0 focus:ring-0 text-white placeholder-gray-400 p-2"
@@ -162,25 +256,110 @@ function ThreadDetail() {
                     value={reply}
                     onChange={(e) => setReply(e.target.value)}
                   />
+
                   <div className="flex items-center gap-2 h-fit">
-                    <Button variant="ghost" size="icon">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="replyImageInput"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setReplyImage(file);
+                        }
+                      }}
+                    />
+
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      type="button"
+                      onClick={() =>
+                        document.getElementById("replyImageInput")?.click()
+                      }
+                    >
                       <ImageUp className="w-6 h-6 text-green-400" />
                     </Button>
+
                     <Button
                       onClick={handleReply}
-                      className="px-5 bg-green-600 rounded-2xl font-semibold hover:bg-green-500"
+                      disabled={posting}
+                      className="px-5 bg-green-600 rounded-2xl font-semibold hover:bg-green-500 disabled:opacity-50"
                     >
-                      Reply
+                      {posting ? "Replying..." : "Reply"}
                     </Button>
                   </div>
                 </div>
+
+                {replyImage && (
+                  <div className="mt-3">
+                    <div className="relative inline-block">
+                      <img
+                        src={URL.createObjectURL(replyImage)}
+                        alt="preview"
+                        className="max-h-40 rounded-lg border border-gray-700"
+                      />
+                      <button
+                        onClick={() => setReplyImage(null)}
+                        className="absolute -top-2 -right-2 bg-black/70 rounded-full p-1 hover:bg-black/90"
+                        type="button"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+
+            {thread.replies.length > 0 ? (
+              <div className="divide-y divide-gray-800">
+                {thread.replies.map((r) => (
+                  <div key={r.id} className="p-5 flex items-start gap-3">
+                    {r.user.profile_picture ? (
+                      <img
+                        src={`${BACKEND_URL}${r.user.profile_picture}`}
+                        alt={r.user.username}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <UserCircle className="w-10 h-10 text-gray-400" />
+                    )}
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">{r.user.name}</p>
+                        <p className="text-sm text-gray-400">
+                          @{r.user.username}
+                        </p>
+                        <span className="ml-auto text-xs text-gray-500">
+                          {formatRelative(r.created_at)}
+                        </span>
+                      </div>
+
+                      <p className="mt-2">{r.content}</p>
+
+                      {r.image && (
+                        <div className="mt-3">
+                          <img
+                            src={`${BACKEND_URL}${r.image}`}
+                            alt="reply"
+                            className="rounded-xl max-h-[400px] object-cover border border-gray-700"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="p-5 text-gray-500 text-sm">Belum ada reply</p>
+            )}
           </>
         )}
       </main>
 
-      {/* Sidebar kanan */}
       <div className="hidden lg:block col-span-3">
         <SidebarRight />
       </div>

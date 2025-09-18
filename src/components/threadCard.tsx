@@ -1,26 +1,9 @@
 import { Heart, MessageSquareText, UserCircle } from "lucide-react";
 import { formatRelative } from "@/utils/formatDate";
 import { Link } from "react-router-dom";
+import type { ThreadType } from "@/types/thread";
 
-const BACKEND_URL = "http://localhost:3000";
-
-interface User {
-  id: string;
-  username: string;
-  name: string;
-  profile_picture: string | null;
-}
-
-export interface ThreadType {
-  id: string;
-  content: string;
-  image: string | null;
-  user: User;
-  created_at: string;
-  likes: number;
-  reply: number;
-  isLiked: boolean;
-}
+const BASE_URL = "http://localhost:3000";
 
 interface ThreadCardProps {
   thread: ThreadType;
@@ -30,10 +13,10 @@ interface ThreadCardProps {
 
 function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
   const avatarUrl = thread.user.profile_picture
-    ? `${BACKEND_URL}${thread.user.profile_picture}`
+    ? `${BASE_URL}${thread.user.profile_picture}`
     : null;
 
-  const threadImageUrl = thread.image ? `${BACKEND_URL}${thread.image}` : null;
+  const threadImageUrl = thread.image ? `${BASE_URL}${thread.image}` : null;
 
   return (
     <div className="p-4 border-b border-gray-700 space-y-2">
@@ -42,7 +25,7 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
           <img
             src={avatarUrl}
             alt={thread.user.username}
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover border-none"
           />
         ) : (
           <UserCircle className="w-10 h-10 text-gray-400" />
@@ -60,7 +43,7 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
               <p className="text-sm text-gray-400">@{thread.user.username}</p>
             </div>
 
-            <p className="mt-2 ">{thread.content}</p>
+            <p className="mt-2">{thread.content}</p>
 
             {threadImageUrl && (
               <div className="mt-3">
@@ -76,13 +59,11 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
           <div className="flex space-x-6 text-gray-400 text-sm mt-2">
             <button
               onClick={() => onLike?.(thread.id)}
-              className={
-                "flex items-center gap-2 transition-colors hover:text-red-500"
-              }
+              className="flex items-center gap-2 transition-colors hover:text-red-500"
             >
               <Heart
                 size={18}
-                className={thread.isLiked ? "fill-red-500" : ""}
+                className={thread.isLiked ? "fill-red-500 text-red-500" : ""}
               />
               {thread.likes}
             </button>

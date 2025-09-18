@@ -1,6 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-// Response backend
 export interface UserResponse {
   id: string;
   email: string;
@@ -9,7 +8,6 @@ export interface UserResponse {
   photo_profile?: string | null;
 }
 
-// Frontend interface
 export interface User {
   id: string;
   email: string;
