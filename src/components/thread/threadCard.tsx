@@ -1,22 +1,49 @@
 import { Heart, MessageSquareText, UserCircle } from "lucide-react";
 import { formatRelative } from "@/utils/formatDate";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import type { ThreadType } from "@/types/thread";
+import type { RootState, AppDispatch } from "@/store/store";
+import { toggleLike, setLikes } from "@/store/likeSlice";
+import axios from "axios";
 
 const BASE_URL = "http://localhost:3000";
 
 interface ThreadCardProps {
   thread: ThreadType;
-  onLike?: (id: string) => void;
   onReply?: (id: string) => void;
 }
 
-function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
+function ThreadCard({ thread, onReply }: ThreadCardProps) {
+  const dispatch = useDispatch<AppDispatch>();
+  const likeState = useSelector((state: RootState) => state.likes[thread.id]);
+
   const avatarUrl = thread.user.profile_picture
     ? `${BASE_URL}${thread.user.profile_picture}`
     : null;
 
   const threadImageUrl = thread.image ? `${BASE_URL}${thread.image}` : null;
+
+  const handleLike = async () => {
+    dispatch(toggleLike(thread.id));
+
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/api/v1/like/${thread.id}`,
+        {},
+        { withCredentials: true }
+      );
+      dispatch(
+        setLikes({
+          threadId: thread.id,
+          liked: res.data.liked,
+          count: res.data.likes,
+        })
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="p-4 border-b border-gray-700 space-y-2">
@@ -25,7 +52,7 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
           <img
             src={avatarUrl}
             alt={thread.user.username}
-            className="w-10 h-10 rounded-full object-cover border-none"
+            className="w-10 h-10 rounded-full object-cover border border-gray-700"
           />
         ) : (
           <UserCircle className="w-10 h-10 text-gray-400" />
@@ -43,7 +70,7 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
               <p className="text-sm text-gray-400">@{thread.user.username}</p>
             </div>
 
-            <p className="mt-2">{thread.content}</p>
+            {thread.content && <p className="mt-2">{thread.content}</p>}
 
             {threadImageUrl && (
               <div className="mt-3">
@@ -58,14 +85,19 @@ function ThreadCard({ thread, onLike, onReply }: ThreadCardProps) {
 
           <div className="flex space-x-6 text-gray-400 text-sm mt-2">
             <button
-              onClick={() => onLike?.(thread.id)}
+              onClick={handleLike}
               className="flex items-center gap-2 transition-colors hover:text-red-500"
             >
               <Heart
                 size={18}
-                className={thread.isLiked ? "fill-red-500 text-red-500" : ""}
+                className={
+                  likeState?.liked ?? thread.isLiked
+                    ? "fill-red-500 text-red-500"
+                    : ""
+                }
               />
-              {thread.likes}
+
+              {likeState?.count ?? thread.likes}
             </button>
 
             <button

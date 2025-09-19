@@ -23,7 +23,7 @@ export default function SidebarCompact() {
       console.error("Error logout:", err);
     } finally {
       console.log(">>> SidebarCompact logout jalan");
-      dispatch(logout()); // hapus token + user di redux & localStorage
+      dispatch(logout());
       navigate("/");
     }
   };

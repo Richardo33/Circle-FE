@@ -43,7 +43,7 @@ const authSlice = createSlice({
         email: userResp.email,
         full_name: userResp.full_name,
         username: userResp.username || userResp.email.split("@")[0],
-        avatar: userResp.photo_profile ?? null, // pastikan string | null
+        avatar: userResp.photo_profile ?? null,
       };
 
       state.token = action.payload.token;

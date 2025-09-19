@@ -64,7 +64,7 @@ export default function CreatePostDialog({
           <div className="pb-3 py-5 border-b border-gray-700">
             <Textarea
               placeholder="What is happening?!"
-              className="w-full bg-transparent resize-none outline-none border-0 focus:border-0 focus:ring-0 text-white placeholder-gray-400 caret-green-600"
+              className="w-full bg-transparent resize-none outline-none border-0 focus:border-0 focus:ring-0 text-white placeholder-gray-400 caret-green-600 focus-visible:ring-0 border-none"
               rows={4}
               value={content}
               onChange={(e) => setContent(e.target.value)}

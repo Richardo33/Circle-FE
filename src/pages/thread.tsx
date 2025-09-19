@@ -1,102 +1,21 @@
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
-import axios from "axios";
 import { ImageUp } from "lucide-react";
-
 import Sidebar from "@/components/sidebar";
 import SidebarCompact from "@/components/sidebarCompact";
 import SidebarRight from "@/components/sidebarRight";
-import ThreadCard from "@/components/threadCard";
-import type { ThreadType } from "@/types/thread";
+import ThreadCard from "@/components/thread/threadCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { socket } from "@/utils/socket";
 import CreatePostDialog from "@/components/createPostDialog";
+import { useThreads } from "@/hooks/useThreads";
+import { useState } from "react";
 
 function Thread() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useSelector((state: RootState) => state.auth.user);
-  const [threads, setThreads] = useState<ThreadType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { threads, loading } = useThreads();
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchThreads = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:3000/api/v1/thread/threads",
-          {
-            withCredentials: true,
-          }
-        );
-        setThreads(res.data.data.threads as ThreadType[]);
-      } catch (err) {
-        console.error("Error fetch threads:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchThreads();
-
-    const handleNewThread = (newThread: ThreadType) => {
-      setThreads((prev) => [newThread, ...prev]);
-    };
-
-    socket.on("new-thread", handleNewThread);
-    return () => {
-      socket.off("new-thread", handleNewThread);
-    };
-  }, []);
-
-  const handleLike = async (id: string) => {
-    setThreads((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              isLiked: !t.isLiked,
-              likes: t.isLiked ? t.likes - 1 : t.likes + 1,
-            }
-          : t
-      )
-    );
-
-    try {
-      const res = await axios.post(
-        `http://localhost:3000/api/v1/like/${id}`,
-        {},
-        { withCredentials: true }
-      );
-
-      console.log("Like response:", res.data);
-      setThreads((prev) =>
-        prev.map((t) =>
-          t.id === id
-            ? {
-                ...t,
-                isLiked: res.data.liked,
-                likes: res.data.likes,
-              }
-            : t
-        )
-      );
-    } catch (err) {
-      console.error("Error liking thread:", err);
-      setThreads((prev) =>
-        prev.map((t) =>
-          t.id === id
-            ? {
-                ...t,
-                isLiked: !t.isLiked,
-                likes: t.isLiked ? t.likes - 1 : t.likes + 1,
-              }
-            : t
-        )
-      );
-    }
-  };
 
   const handleReply = (id: string) => {
     console.log("Reply to thread:", id);
@@ -122,7 +41,7 @@ function Thread() {
         >
           <Textarea
             placeholder="What is happening?!"
-            className="flex-1 bg-transparent resize-none outline-none border-none ring-0 focus:ring-0 text-white placeholder-gray-400 p-2"
+            className="flex-1 bg-transparent resize-none outline-none ring-0 focus:ring-0 text-white placeholder-gray-400 p-2 focus-visible:ring-0 border-none"
             rows={2}
             readOnly
           />
@@ -140,13 +59,9 @@ function Thread() {
 
         <div className="space-y-4">
           {threads.map((thread) => (
-            <ThreadCard
-              key={thread.id}
-              thread={thread}
-              onLike={handleLike}
-              onReply={handleReply}
-            />
+            <ThreadCard key={thread.id} thread={thread} onReply={handleReply} />
           ))}
+
           {!loading && threads.length === 0 && (
             <p className="text-gray-400 text-center mt-4">
               Belum ada postingan.
