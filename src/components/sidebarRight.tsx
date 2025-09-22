@@ -1,38 +1,98 @@
-import type { RootState } from "@/store/store";
+import { useEffect, useState } from "react";
 import { UserCircle } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/store/store";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { setCredentials } from "@/store/authSlice";
 
-const BASE_URL = "http://localhost:3000/profile";
+const BASE_URL = "http://localhost:3000";
 
 function SidebarRight() {
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const avatarUrl = user?.avatar ? `${BASE_URL}${user.avatar}` : null;
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await axios.get(`${BASE_URL}/api/v1/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
+
+        dispatch(setCredentials({ token, user: res.data.data }));
+      } catch (err) {
+        console.error("Failed to fetch user in SidebarRight:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [dispatch]);
+
+  const avatarUrl = user?.profile_picture
+    ? `${BASE_URL}${user.profile_picture}`
+    : null;
+  const backgroundUrl = user?.backgroundPhoto
+    ? `${BASE_URL}${user.backgroundPhoto}`
+    : "https://picsum.photos/400/150";
+
+  if (loading) {
+    return (
+      <aside className="col-span-3 h-screen sticky top-0 pt-4 border-l border-gray-700 p-4 flex items-center justify-center text-gray-400">
+        Loading ...
+      </aside>
+    );
+  }
 
   return (
-    <aside className="col-span-3 space-y-4 h-screen sticky top-0 pt-4 border-l p-8 border-gray-700">
-      <div className="bg-[#262626] rounded-2xl p-4 shadow">
-        <div className="flex items-center space-x-3">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={user?.username}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          ) : (
-            <UserCircle className="w-12 h-12 text-gray-400" />
-          )}
-          <div>
-            <p className="font-semibold">{user?.full_name ?? "Guest"}</p>
-            <p className="text-sm text-gray-400">
-              @{user?.username ?? "anonymous"}
-            </p>
+    <aside className="col-span-3 h-screen sticky top-0 pt-4 border-l border-gray-700 p-4 space-y-4">
+      <div className="bg-[#262626] rounded-2xl shadow overflow-hidden">
+        <div className="relative">
+          <img
+            src={backgroundUrl}
+            alt="Background"
+            className="w-full h-30 object-cover"
+          />
+
+          <div className="absolute -bottom-8 left-4">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={user?.username}
+                className="w-16 h-16 rounded-full border-4 border-[#262626] object-cover shadow-lg"
+              />
+            ) : (
+              <UserCircle className="w-16 h-16 text-gray-400 bg-gray-800 rounded-full border-4 border-[#262626]" />
+            )}
           </div>
+        </div>
+
+        <div className="mt-10 px-4 pb-4 flex justify-between items-center">
+          <div>
+            <p className="font-semibold text-lg">{user?.full_name}</p>
+            <p className="text-sm text-gray-400">@{user?.username}</p>
+          </div>
+          <Button
+            className="mt-0 w-auto cursor-pointer py-2 rounded-3xl bg-[#04A51E] font-semibold text-white hover:bg-green-600"
+            onClick={() => navigate("/profile")}
+          >
+            Edit Profile
+          </Button>
         </div>
       </div>
 
-      <div className="bg-[#262626] rounded-2xl p-4 shadow space-y-2">
-        <h2 className="font-semibold">Who to follow</h2>
+      <div className="bg-[#262626] rounded-2xl p-4 shadow text-center text-sm text-gray-400">
+        <h3>Who To Follow</h3>
       </div>
 
       <div className="bg-[#262626] rounded-2xl p-4 shadow text-center text-sm text-gray-400">

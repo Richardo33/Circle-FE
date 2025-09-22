@@ -16,7 +16,7 @@ export interface ReplyType {
 export interface ThreadType {
   id: string;
   content: string;
-  image: string | null;
+  image?: string | null;
   user: User;
   created_at: string;
   likes: number;

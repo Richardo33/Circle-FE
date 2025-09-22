@@ -3,17 +3,35 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 export interface UserResponse {
   id: string;
   email: string;
-  full_name: string;
-  username?: string;
-  photo_profile?: string | null;
+  username: string;
+  name: string;
+  bio?: string | null;
+  profile_picture?: string | null;
+  backgroundPhoto?: string | null;
+  created_at: string;
+  threads?: {
+    id: string;
+    content: string;
+    image?: string | null;
+    created_at: string;
+  }[];
 }
 
 export interface User {
   id: string;
   email: string;
-  full_name: string;
   username: string;
-  avatar: string | null;
+  full_name: string;
+  bio?: string | null;
+  profile_picture: string | null;
+  backgroundPhoto: string | null;
+  created_at: string;
+  threads?: {
+    id: string;
+    content: string;
+    image?: string | null;
+    created_at: string;
+  }[];
 }
 
 interface AuthState {
@@ -41,9 +59,13 @@ const authSlice = createSlice({
       const mappedUser: User = {
         id: userResp.id,
         email: userResp.email,
-        full_name: userResp.full_name,
-        username: userResp.username || userResp.email.split("@")[0],
-        avatar: userResp.photo_profile ?? null,
+        username: userResp.username,
+        full_name: userResp.name ?? "",
+        bio: userResp.bio ?? null,
+        profile_picture: userResp.profile_picture ?? null,
+        backgroundPhoto: userResp.backgroundPhoto ?? null,
+        created_at: userResp.created_at,
+        threads: userResp.threads ?? [],
       };
 
       state.token = action.payload.token;
@@ -51,6 +73,12 @@ const authSlice = createSlice({
 
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("user", JSON.stringify(mappedUser));
+    },
+
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (!state.user) return;
+      state.user = { ...state.user, ...action.payload };
+      localStorage.setItem("user", JSON.stringify(state.user));
     },
 
     logout: (state) => {
@@ -62,5 +90,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, updateUser, logout } = authSlice.actions;
 export default authSlice.reducer;
