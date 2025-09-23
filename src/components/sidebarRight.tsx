@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setCredentials } from "@/store/authSlice";
+import FollowStats from "@/components/followStats";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -89,6 +90,8 @@ function SidebarRight() {
             Edit Profile
           </Button>
         </div>
+
+        {user?.id && <FollowStats userId={user.id} className="px-4 pb-4" />}
       </div>
 
       <div className="bg-[#262626] rounded-2xl p-4 shadow text-center text-sm text-gray-400">

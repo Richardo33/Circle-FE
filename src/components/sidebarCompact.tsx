@@ -1,4 +1,3 @@
-// src/components/SidebarCompact.tsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { Home, UserRoundSearch, User, Heart, LogOut } from "lucide-react";
 import { Circle } from "@/assets/image";

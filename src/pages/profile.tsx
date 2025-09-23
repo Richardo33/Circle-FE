@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UserCircle } from "lucide-react";
+import { UserCircle, Pencil } from "lucide-react";
 import Sidebar from "@/components/sidebar";
 import SidebarCompact from "@/components/sidebarCompact";
 import SidebarRight from "@/components/sidebarRight";
@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import ThreadCard from "@/components/thread/threadCard";
 import type { ThreadType } from "@/types/thread";
+import FollowStats from "@/components/followStats";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -114,25 +115,24 @@ function Profile() {
               <UserCircle className="w-28 h-28 text-gray-400 bg-gray-800 rounded-full border-4 border-background" />
             )}
           </div>
+
+          <Button
+            size="icon"
+            variant="secondary"
+            className="absolute -bottom-12 right-4 bg-black/60 text-white hover:bg-black/80 rounded-full"
+            onClick={() => setOpenDetailsDialog(true)}
+          >
+            <Pencil className="w-5 h-5" />
+          </Button>
         </div>
 
         <div className="mt-16 px-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold">
-                {reduxUser?.full_name ?? profile.full_name}
-              </h1>
-              <p className="text-muted-foreground">
-                @{reduxUser?.username ?? profile.username}
-              </p>
-            </div>
-            <Button
-              className="cursor-pointer py-4 rounded-3xl bg-[#04A51E] font-semibold text-white hover:bg-green-600"
-              onClick={() => setOpenDetailsDialog(true)}
-            >
-              Edit Profile
-            </Button>
-          </div>
+          <h1 className="text-2xl font-bold">
+            {reduxUser?.full_name ?? profile.full_name}
+          </h1>
+          <p className="text-muted-foreground">
+            @{reduxUser?.username ?? profile.username}
+          </p>
 
           {reduxUser?.bio || profile.bio ? (
             <p
@@ -150,20 +150,7 @@ function Profile() {
           ) : null}
         </div>
 
-        <div className="mt-8 flex justify-around bg-[#262626] rounded-2xl p-4 shadow text-center">
-          <div>
-            <p className="text-lg font-semibold text-white">
-              {profile.followers_count ?? 0}
-            </p>
-            <p className="text-gray-400 text-sm">Followers</p>
-          </div>
-          <div>
-            <p className="text-lg font-semibold text-white">
-              {profile.following_count ?? 0}
-            </p>
-            <p className="text-gray-400 text-sm">Following</p>
-          </div>
-        </div>
+        <FollowStats userId={profile.id} className="mt-8" showPosts />
 
         <div className="mt-8 space-y-4">
           {threads.length > 0 ? (

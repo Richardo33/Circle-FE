@@ -62,7 +62,6 @@ function Register() {
         avatar: data.photo_profile || null,
       };
 
-      // simpan ke Redux + localStorage
       dispatch(setCredentials({ token, user }));
 
       navigate("/thread");

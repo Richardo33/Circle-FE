@@ -22,6 +22,7 @@ export interface ThreadType {
   likes: number;
   reply: number;
   isLiked: boolean;
+  totalPosts?: number;
 }
 
 export interface ThreadDetailType extends ThreadType {

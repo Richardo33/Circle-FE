@@ -46,7 +46,7 @@ function EditProfileDetailsDialog({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError(null); // reset error saat user mengetik
+    setError(null);
   };
 
   const validateUsername = (username: string) => {
