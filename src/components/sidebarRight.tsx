@@ -84,7 +84,8 @@ function SidebarRight() {
             <p className="text-sm text-gray-400">@{user?.username}</p>
           </div>
           <Button
-            className="mt-0 w-auto cursor-pointer py-2 rounded-3xl bg-[#04A51E] font-semibold text-white hover:bg-green-600"
+            className="mt-0 w-auto cursor-pointer py-2 rounded-3xl border-2 hover: font-semibold text-white"
+            variant="secondary"
             onClick={() => navigate("/profile")}
           >
             Edit Profile
