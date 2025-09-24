@@ -37,7 +37,7 @@ function FollowCard({
         )}
 
         <div className="flex flex-col">
-          <span className="font-semibold">{full_name}</span>
+          <span className="font-semibold truncate w-48">{full_name}</span>
           <span className="text-gray-400 text-sm">@{username}</span>
         </div>
       </div>
@@ -45,6 +45,7 @@ function FollowCard({
       <Button
         size="sm"
         variant={isFollowing ? "outline" : "default"}
+        className="cursor-pointer"
         onClick={() => onToggleFollow?.(id, isFollowing)}
       >
         {isFollowing ? "Following" : "Follow"}

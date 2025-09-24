@@ -98,7 +98,7 @@ function Profile() {
           <Button
             size="sm"
             variant="secondary"
-            className="absolute top-2 right-2 bg-black/60 text-white hover:bg-black/80"
+            className="absolute top-2 right-2 bg-black/60 text-white hover:bg-black/80 cursor-pointer"
             onClick={() => setOpenPhotoDialog(true)}
           >
             Edit Photos
@@ -119,7 +119,7 @@ function Profile() {
           <Button
             size="icon"
             variant="secondary"
-            className="absolute -bottom-12 right-4 bg-black/60 text-white hover:bg-black/80 rounded-full"
+            className="absolute -bottom-12 right-4 bg-black/60 text-white hover:bg-black/80 rounded-full cursor-pointer"
             onClick={() => setOpenDetailsDialog(true)}
           >
             <Pencil className="w-5 h-5" />

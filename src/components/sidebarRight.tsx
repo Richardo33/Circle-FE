@@ -7,8 +7,16 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setCredentials } from "@/store/authSlice";
 import FollowStats from "@/components/followStats";
+import FollowCard, { type FollowUserType } from "@/components/followCard";
 
 const BASE_URL = "http://localhost:3000";
+
+interface SuggestedUserResponse {
+  id: string;
+  full_name: string;
+  username: string;
+  photo_profile?: string | null;
+}
 
 function SidebarRight() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -16,6 +24,7 @@ function SidebarRight() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [suggestedUsers, setSuggestedUsers] = useState<FollowUserType[]>([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -39,6 +48,53 @@ function SidebarRight() {
 
     fetchUser();
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchSuggestedUsers = async () => {
+      if (!user?.id) return;
+
+      try {
+        const res = await axios.get<{ data: SuggestedUserResponse[] }>(
+          `${BASE_URL}/api/v1/search/suggested`,
+          { withCredentials: true }
+        );
+
+        const data: FollowUserType[] = res.data.data.map((u) => ({
+          id: u.id,
+          full_name: u.full_name,
+          username: u.username,
+          profile_picture: u.photo_profile ?? null,
+          isFollowing: false,
+        }));
+
+        setSuggestedUsers(data);
+      } catch (err) {
+        console.error("Failed to fetch suggested users:", err);
+      }
+    };
+
+    fetchSuggestedUsers();
+  }, [user?.id]);
+
+  const handleToggleFollow = async (
+    userId: string,
+    currentlyFollowing: boolean
+  ) => {
+    try {
+      await axios.post(
+        `${BASE_URL}/api/v1/follows`,
+        { targetId: userId },
+        { withCredentials: true }
+      );
+      setSuggestedUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId ? { ...u, isFollowing: !currentlyFollowing } : u
+        )
+      );
+    } catch (err) {
+      console.error("Failed to toggle follow:", err);
+    }
+  };
 
   const avatarUrl = user?.profile_picture
     ? `${BASE_URL}${user.profile_picture}`
@@ -64,7 +120,6 @@ function SidebarRight() {
             alt="Background"
             className="w-full h-30 object-cover"
           />
-
           <div className="absolute -bottom-8 left-4">
             {avatarUrl ? (
               <img
@@ -84,7 +139,7 @@ function SidebarRight() {
             <p className="text-sm text-gray-400">@{user?.username}</p>
           </div>
           <Button
-            className="mt-0 w-auto cursor-pointer py-2 rounded-3xl border-2 hover: font-semibold text-white"
+            className="mt-0 w-auto cursor-pointer py-2 rounded-3xl border-2 font-semibold text-white"
             variant="secondary"
             onClick={() => navigate("/profile")}
           >
@@ -95,8 +150,17 @@ function SidebarRight() {
         {user?.id && <FollowStats userId={user.id} className="px-4 pb-4" />}
       </div>
 
-      <div className="bg-[#262626] rounded-2xl p-4 shadow text-center text-sm text-gray-400">
-        <h3>Who To Follow</h3>
+      <div className="bg-[#262626] rounded-2xl p-4 shadow space-y-3">
+        <h3 className="text-sm text-gray-400 text-center mb-2">
+          Who To Follow
+        </h3>
+        {suggestedUsers.length > 0 ? (
+          suggestedUsers.map((u) => (
+            <FollowCard key={u.id} {...u} onToggleFollow={handleToggleFollow} />
+          ))
+        ) : (
+          <p className="text-gray-400 text-center text-sm">No suggestions.</p>
+        )}
       </div>
 
       <div className="bg-[#262626] rounded-2xl p-4 shadow text-center text-sm text-gray-400">
