@@ -7,12 +7,14 @@ interface FollowStatsProps {
   userId: string;
   className?: string;
   showPosts?: boolean;
+  isMyProfile?: boolean;
 }
 
 function FollowStats({
   userId,
   className = "",
   showPosts = false,
+  isMyProfile = false,
 }: FollowStatsProps) {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -21,24 +23,38 @@ function FollowStats({
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const followersRes = await axios.get(`${BASE_URL}/api/v1/follows`, {
-          params: { type: "followers", userId },
+        const followersUrl = isMyProfile
+          ? `${BASE_URL}/api/v1/follows`
+          : `${BASE_URL}/api/v1/follows/${userId}`;
+        const followersRes = await axios.get(followersUrl, {
+          params: { type: "followers" },
           withCredentials: true,
         });
         setFollowersCount(followersRes.data.data.length);
 
-        const followingRes = await axios.get(`${BASE_URL}/api/v1/follows`, {
-          params: { type: "following", userId },
+        const followingUrl = isMyProfile
+          ? `${BASE_URL}/api/v1/follows`
+          : `${BASE_URL}/api/v1/follows/${userId}`;
+        const followingRes = await axios.get(followingUrl, {
+          params: { type: "following" },
           withCredentials: true,
         });
         setFollowingCount(followingRes.data.data.length);
 
         if (showPosts) {
-          const postsRes = await axios.get(
-            `${BASE_URL}/api/v1/thread/threads/me`,
-            { withCredentials: true }
-          );
-          setPostsCount(postsRes.data.data.length);
+          if (isMyProfile) {
+            const postsRes = await axios.get(
+              `${BASE_URL}/api/v1/thread/threads/me`,
+              { withCredentials: true }
+            );
+            setPostsCount(postsRes.data.data.length);
+          } else {
+            const postsRes = await axios.get(
+              `${BASE_URL}/api/v1/thread/threads/stats/${userId}`,
+              { withCredentials: true }
+            );
+            setPostsCount(postsRes.data.data.length);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch follow stats:", err);
@@ -48,7 +64,7 @@ function FollowStats({
     if (userId) {
       fetchCounts();
     }
-  }, [userId, showPosts]);
+  }, [userId, showPosts, isMyProfile]);
 
   return (
     <div

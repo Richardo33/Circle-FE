@@ -30,7 +30,7 @@ function Thread() {
         <SidebarCompact />
       </div>
 
-      <main className="col-span-12 md:col-span-10 lg:col-span-6 space-y-4 py-4">
+      <main className="col-span-12 md:col-span-10 lg:col-span-6">
         <div className="px-5 pb-3 pt-2.5">
           <h1 className="text-3xl font-bold">Home</h1>
         </div>

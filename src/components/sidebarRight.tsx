@@ -151,9 +151,9 @@ function SidebarRight() {
       </div>
 
       <div className="bg-[#262626] rounded-2xl p-4 shadow space-y-3">
-        <h3 className="text-sm text-gray-400 text-center mb-2">
-          Who To Follow
-        </h3>
+        <h2 className="text-lg font-bold text-White  pl-4 mb-2">
+          Suggested for you
+        </h2>
         {suggestedUsers.length > 0 ? (
           suggestedUsers.map((u) => (
             <FollowCard key={u.id} {...u} onToggleFollow={handleToggleFollow} />

@@ -62,12 +62,24 @@ function ThreadCard({ thread, onReply }: ThreadCardProps) {
           <Link to={`/thread/${thread.id}`}>
             <div>
               <p className="font-semibold">
-                {thread.user.name}{" "}
+                <Link
+                  to={`/profile/${thread.user.username}`}
+                  className="hover:underline"
+                >
+                  {thread.user.name}
+                </Link>{" "}
                 <span className="text-sm text-gray-400">
                   • {formatRelative(thread.created_at)}
                 </span>
               </p>
-              <p className="text-sm text-gray-400">@{thread.user.username}</p>
+              <p className="text-sm text-gray-400">
+                <Link
+                  to={`/profile/${thread.user.username}`}
+                  className="hover:underline"
+                >
+                  @{thread.user.username}
+                </Link>
+              </p>
             </div>
 
             {thread.content && <p className="mt-2">{thread.content}</p>}

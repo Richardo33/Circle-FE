@@ -78,35 +78,36 @@ export default function Follows() {
         <SidebarCompact />
       </div>
 
-      <main className="col-span-6 space-y-4 pt-4">
-        <div className="px-5 pb-3 pt-2.5">
-          <h1 className="text-3xl font-bold">Follows</h1>
+      <main className="col-span-6">
+        <div className="sticky top-0 z-10 bg-[#1d1d1d]">
+          <div className="px-5 pb-3 pt-2.5">
+            <h1 className="text-3xl font-bold">Follows</h1>
+          </div>
+
+          <div className="flex w-full border-b border-[#3F3F3F]">
+            <button
+              onClick={() => setActiveTab("followers")}
+              className={`mx-5 py-2 w-1/2 flex justify-center items-center border-b-4 cursor-pointer ${
+                activeTab === "followers"
+                  ? "border-[#04A51E] text-green-500"
+                  : "border-transparent text-gray-400 hover:border-[#04A51E] hover:text-green-500"
+              }`}
+            >
+              <h3>Followers</h3>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("following")}
+              className={`mx-5 py-2 w-1/2 flex justify-center items-center border-b-4 cursor-pointer ${
+                activeTab === "following"
+                  ? "border-[#04A51E] text-green-500"
+                  : "border-transparent text-gray-400 hover:border-[#04A51E] hover:text-green-500"
+              }`}
+            >
+              <h3>Followings</h3>
+            </button>
+          </div>
         </div>
-
-        <div className="flex w-full border-b border-[#3F3F3F]">
-          <button
-            onClick={() => setActiveTab("followers")}
-            className={`mx-5 py-2 w-1/2 flex justify-center items-center border-b-4 cursor-pointer ${
-              activeTab === "followers"
-                ? "border-[#04A51E] text-green-500"
-                : "border-transparent text-gray-400 hover:border-[#04A51E] hover:text-green-500"
-            }`}
-          >
-            <h3>Followers</h3>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("following")}
-            className={`mx-5 py-2 w-1/2 flex justify-center items-center border-b-4 cursor-pointer ${
-              activeTab === "following"
-                ? "border-[#04A51E] text-green-500"
-                : "border-transparent text-gray-400 hover:border-[#04A51E] hover:text-green-500"
-            }`}
-          >
-            <h3>Followings</h3>
-          </button>
-        </div>
-
         <div className="mt-4 space-y-4">
           {users.length > 0 ? (
             users.map((user) => (

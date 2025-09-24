@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const BASE_URL = "http://localhost:3000";
@@ -22,13 +23,13 @@ function FollowCard({
   const avatarSrc = profile_picture ? `${BASE_URL}${profile_picture}` : null;
 
   return (
-    <div className="flex justify-between items-center p-3  rounded-xl shadow">
-      <div className="flex items-center gap-3">
+    <div className="flex justify-between items-center p-3 rounded-xl shadow">
+      <Link to={`/profile/${username}`} className="flex items-center gap-3">
         {avatarSrc ? (
           <img
             src={avatarSrc}
             alt={username}
-            className="w-12 h-12 rounded-full object-cover border border-gray-700"
+            className="w-12 h-12 aspect-square rounded-full object-cover border border-gray-700"
           />
         ) : (
           <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 font-semibold">
@@ -40,7 +41,7 @@ function FollowCard({
           <span className="font-semibold truncate w-48">{full_name}</span>
           <span className="text-gray-400 text-sm">@{username}</span>
         </div>
-      </div>
+      </Link>
 
       <Button
         size="sm"

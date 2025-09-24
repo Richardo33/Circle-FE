@@ -9,6 +9,7 @@ import Search from "@/pages/search";
 import Follows from "@/pages/follows";
 import Profile from "@/pages/profile";
 import ThreadDetail from "@/pages/threadDetail";
+import ProfileByUsername from "./pages/profileUser";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/follows" element={<Follows />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:username" element={<ProfileByUsername />} />
           </Route>
         </Routes>
       </Router>
