@@ -82,7 +82,6 @@ function Register() {
   return (
     <div className="flex items-center justify-center min-h-screen px-8 bg-blend-darken">
       <div className="w-full max-w-md space-y-4">
-        {/* Logo */}
         <div>
           <img
             src={Logo}
@@ -100,7 +99,6 @@ function Register() {
           className="flex flex-col space-y-4"
           encType="multipart/form-data"
         >
-          {/* Upload Avatar */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative w-24 h-24">
               <img
@@ -129,7 +127,6 @@ function Register() {
             <p className="text-sm text-gray-400">Upload your profile picture</p>
           </div>
 
-          {/* Input Fields */}
           <Input
             type="text"
             name="full_name"
@@ -140,7 +137,7 @@ function Register() {
             className="px-4 py-5 border text-white border-gray-500 rounded-md"
           />
           <Input
-            type="text"
+            type="email"
             name="email"
             placeholder="Email"
             required

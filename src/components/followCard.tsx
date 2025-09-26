@@ -23,8 +23,12 @@ function FollowCard({
   const avatarSrc = profile_picture ? `${BASE_URL}${profile_picture}` : null;
 
   return (
-    <div className="flex justify-between items-center p-3 rounded-xl shadow">
-      <Link to={`/profile/${username}`} className="flex items-center gap-3">
+    <div className="flex items-center justify-between p-3 rounded-xl shadow gap-3">
+      {/* avatar + nama */}
+      <Link
+        to={`/profile/${username}`}
+        className="flex items-center gap-3 min-w-0 flex-1"
+      >
         {avatarSrc ? (
           <img
             src={avatarSrc}
@@ -37,16 +41,17 @@ function FollowCard({
           </div>
         )}
 
-        <div className="flex flex-col">
-          <span className="font-semibold truncate w-48">{full_name}</span>
-          <span className="text-gray-400 text-sm">@{username}</span>
+        <div className="flex flex-col min-w-0">
+          <span className="font-semibold truncate">{full_name}</span>
+          <span className="text-gray-400 text-sm truncate">@{username}</span>
         </div>
       </Link>
 
+      {/* tombol follow */}
       <Button
         size="sm"
         variant={isFollowing ? "outline" : "default"}
-        className="cursor-pointer"
+        className="cursor-pointer flex-shrink-0"
         onClick={() => onToggleFollow?.(id, isFollowing)}
       >
         {isFollowing ? "Following" : "Follow"}
