@@ -1,5 +1,3 @@
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store/store";
 import { ImageUp } from "lucide-react";
 import Sidebar from "@/components/sidebar";
 import SidebarCompact from "@/components/sidebarCompact";
@@ -12,8 +10,6 @@ import { useThreads } from "@/hooks/useThreads";
 import { useState } from "react";
 
 function Thread() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const user = useSelector((state: RootState) => state.auth.user);
   const { threads, loading } = useThreads();
   const [open, setOpen] = useState(false);
 
