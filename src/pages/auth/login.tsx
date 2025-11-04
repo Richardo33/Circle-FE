@@ -5,13 +5,12 @@ import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "@/store/authSlice";
+import { setCredentials, type UserResponse } from "@/store/authSlice";
+
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 function Login() {
-  const [form, setForm] = useState({
-    identifier: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ identifier: "", password: "" });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -20,29 +19,47 @@ function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  type LoginApi = {
+    data: {
+      token: string;
+      user_id: string;
+      email: string;
+      username: string;
+      name?: string; // bisa ada
+      full_name?: string; // bisa ada
+      avatar?: string | null; // server pakai 'avatar'
+      backgroundPhoto?: string | null;
+      created_at?: string; // bisa tidak ada
+    };
+    message?: string;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/v1/auth/login",
+      const res = await axios.post<LoginApi>(
+        `${API_BASE}/api/v1/auth/login`,
         form,
         { withCredentials: true }
       );
 
-      console.log("Login sukses:", res.data);
+      const d = res.data.data;
+      const token = d.token;
 
-      const data = res.data.data;
-      const token = data.token;
-      const user = {
-        id: data.user_id,
-        email: data.email,
-        full_name: data.name,
-        username: data.username,
-        avatar: data.avatar,
+      // BENTUK UserResponse sesuai tipe di authSlice.ts
+      const userResp: UserResponse = {
+        id: d.user_id,
+        email: d.email,
+        username: d.username,
+        name: (d.name ?? d.full_name ?? "").trim(), // <-- WAJIB ada 'name'
+        bio: null, // isi jika API mengirim
+        profile_picture: d.avatar ?? null, // <-- map avatar -> profile_picture
+        backgroundPhoto: d.backgroundPhoto ?? null,
+        created_at: d.created_at ?? new Date().toISOString(), // <-- WAJIB ada 'created_at'
+        threads: [], // isi jika API mengirim
       };
 
-      dispatch(setCredentials({ token, user }));
-
+      dispatch(setCredentials({ token, user: userResp }));
       navigate("/thread");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

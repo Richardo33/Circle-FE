@@ -5,15 +5,13 @@ import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "@/store/authSlice";
+import { setCredentials, type UserResponse } from "@/store/authSlice";
 import { Camera } from "lucide-react";
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
 function Register() {
-  const [form, setForm] = useState({
-    full_name: "",
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ full_name: "", email: "", password: "" });
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -25,11 +23,27 @@ function Register() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
+    if (e.target.files?.[0]) {
       const selected = e.target.files[0];
       setFile(selected);
       setPreview(URL.createObjectURL(selected));
     }
+  };
+
+  type RegisterApi = {
+    data: {
+      token: string;
+      user_id: string;
+      email: string;
+      username?: string;
+      name?: string;
+      full_name?: string;
+      photo_profile?: string | null; // bisa juga "avatar" tergantung API
+      avatar?: string | null;
+      backgroundPhoto?: string | null;
+      created_at?: string;
+    };
+    message?: string;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,12 +53,10 @@ function Register() {
       formData.append("full_name", form.full_name);
       formData.append("email", form.email);
       formData.append("password", form.password);
-      if (file) {
-        formData.append("profileImage", file);
-      }
+      if (file) formData.append("profileImage", file);
 
-      const res = await axios.post(
-        "http://localhost:3000/api/v1/auth/register",
+      const res = await axios.post<RegisterApi>(
+        `${API_BASE}/api/v1/auth/register`,
         formData,
         {
           withCredentials: true,
@@ -52,20 +64,25 @@ function Register() {
         }
       );
 
-      const data = res.data.data;
-      const token = data.token;
-      const user = {
-        id: data.user_id,
-        email: data.email,
-        full_name: data.name,
-        username: data.username || data.email.split("@")[0],
-        avatar: data.photo_profile || null,
+      const d = res.data.data;
+      const token = d.token;
+
+      // Map ke tipe YANG DIHARAPKAN reducer (UserResponse)
+      const userResp: UserResponse = {
+        id: d.user_id,
+        email: d.email,
+        username: d.username ?? d.email.split("@")[0],
+        name: (d.name ?? d.full_name ?? "").trim(), // WAJIB ada 'name'
+        bio: null,
+        profile_picture: d.photo_profile ?? d.avatar ?? null, // map ke 'profile_picture'
+        backgroundPhoto: d.backgroundPhoto ?? null,
+        created_at: d.created_at ?? new Date().toISOString(), // WAJIB ada 'created_at'
+        threads: [],
       };
 
-      dispatch(setCredentials({ token, user }));
-
+      dispatch(setCredentials({ token, user: userResp }));
       navigate("/thread");
-    } catch (err: unknown) {
+    } catch (err) {
       if (axios.isAxiosError(err)) {
         console.error(err.response?.data || err.message);
         alert(err.response?.data?.message || "Registrasi gagal!");
