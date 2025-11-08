@@ -22,8 +22,10 @@ export default function Sidebar({ onOpenPost }: SidebarProps) {
     } catch (err) {
       console.error("Error logout:", err);
     } finally {
-      dispatch(logout());
-      navigate("/");
+      navigate("/", { replace: true });
+      setTimeout(() => {
+        dispatch(logout());
+      }, 0);
     }
   };
 
