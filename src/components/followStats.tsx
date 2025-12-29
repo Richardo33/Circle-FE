@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 interface FollowStatsProps {
   userId: string;
