@@ -3,7 +3,7 @@ import axios from "axios";
 import { socket } from "@/utils/socket";
 import type { ThreadType } from "@/types/thread";
 
-const BASE_URL = process.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function useThreads() {
   const [threads, setThreads] = useState<ThreadType[]>([]);

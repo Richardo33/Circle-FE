@@ -1,7 +1,7 @@
 import { UserCircle } from "lucide-react";
 import { formatRelative } from "@/utils/formatDate";
 
-const BASE_URL = process.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Reply {
   id: string;

@@ -9,7 +9,7 @@ import { setCredentials } from "@/store/authSlice";
 import FollowStats from "@/components/followStats";
 import FollowCard, { type FollowUserType } from "@/components/followCard";
 
-const BASE_URL = process.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface SuggestedUserResponse {
   id: string;

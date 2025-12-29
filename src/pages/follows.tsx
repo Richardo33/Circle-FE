@@ -5,7 +5,7 @@ import SidebarRight from "@/components/sidebarRight";
 import SidebarCompact from "@/components/sidebarCompact";
 import FollowCard, { type FollowUserType } from "@/components/followCard";
 
-const BASE_URL = process.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ApiFollowUser {
   id: string;
