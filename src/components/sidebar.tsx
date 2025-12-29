@@ -15,7 +15,7 @@ export default function Sidebar({ onOpenPost }: SidebarProps) {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:3000/api/v1/auth/logout", {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

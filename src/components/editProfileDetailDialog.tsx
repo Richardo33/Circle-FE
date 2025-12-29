@@ -64,7 +64,7 @@ function EditProfileDetailsDialog({
 
     try {
       const res = await axios.put(
-        "http://localhost:3000/api/v1/auth/me",
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/me`,
         form,
         { withCredentials: true }
       );

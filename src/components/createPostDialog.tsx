@@ -41,7 +41,7 @@ export default function CreatePostDialog({
 
     try {
       await axios.post(
-        "http://localhost:3000/api/v1/thread/threads",
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/thread/threads`,
         formData,
         {
           withCredentials: true,
