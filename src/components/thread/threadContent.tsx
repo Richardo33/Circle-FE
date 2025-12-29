@@ -3,7 +3,7 @@ interface ThreadContentProps {
   image?: string | null;
 }
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 function ThreadContent({ content, image }: ThreadContentProps) {
   return (

@@ -7,7 +7,7 @@ import SidebarCompact from "@/components/sidebarCompact";
 import FollowCard, { type FollowUserType } from "@/components/followCard";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 interface ApiUser {
   id: string;

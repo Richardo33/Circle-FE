@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 export type FollowUserType = {
   id: string;

@@ -4,7 +4,7 @@ import type { ThreadDetailType } from "@/types/thread";
 import type { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 export function useThread(id?: string) {
   const [thread, setThread] = useState<ThreadDetailType | null>(null);

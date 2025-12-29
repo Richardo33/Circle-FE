@@ -13,7 +13,7 @@ import ThreadCard from "@/components/thread/threadCard";
 import type { ThreadType } from "@/types/thread";
 import FollowStats from "@/components/followStats";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 export interface ProfileType {
   id: string;

@@ -6,7 +6,7 @@ import type { RootState, AppDispatch } from "@/store/store";
 import { toggleLike, setLikes } from "@/store/likeSlice";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 interface ThreadDetailCardProps {
   thread: ThreadDetailType;

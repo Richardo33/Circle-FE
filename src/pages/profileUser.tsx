@@ -13,7 +13,7 @@ import type { ProfileType } from "@/pages/profile";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.VITE_API_BASE_URL;
 
 function ProfileByUsername() {
   const { username } = useParams<{ username: string }>();
