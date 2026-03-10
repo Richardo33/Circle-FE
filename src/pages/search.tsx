@@ -37,6 +37,7 @@ function Search() {
   const fetchUsers = async (q: string) => {
     try {
       setLoading(true);
+
       const res = await axios.get<{
         code: number;
         status: string;
@@ -64,19 +65,19 @@ function Search() {
 
   const handleToggleFollow = async (
     userId: string,
-    currentlyFollowing: boolean
+    currentlyFollowing: boolean,
   ) => {
     try {
       await axios.post(
         `${BASE_URL}/api/v1/follows`,
         { targetId: userId },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       setResults((prev) =>
         prev.map((u) =>
-          u.id === userId ? { ...u, isFollowing: !currentlyFollowing } : u
-        )
+          u.id === userId ? { ...u, isFollowing: !currentlyFollowing } : u,
+        ),
       );
     } catch (err) {
       console.error("Failed to toggle follow:", err);
@@ -93,7 +94,8 @@ function Search() {
         <SidebarCompact />
       </div>
 
-      <main className="col-span-6 space-y-4 pt-4">
+      <main className="col-span-12 md:col-span-10 lg:col-span-6 space-y-4 pt-4">
+        {/* Search Bar */}
         <div className="bg-[#262626] rounded-3xl p-3 shadow flex items-center gap-3">
           <SearchIcon size={24} className="text-gray-400" />
           <Input
@@ -106,19 +108,38 @@ function Search() {
         </div>
 
         <div className="mt-4 space-y-3">
-          {loading && <p className="text-gray-400">Loading...</p>}
+          {/* EMPTY STATE */}
+          {!keyword && (
+            <div className="flex flex-col items-center justify-center text-center text-gray-400 mt-20 space-y-3">
+              <SearchIcon size={64} className="text-gray-600" />
 
-          {!loading && results.length === 0 && keyword && (
-            <p className="text-gray-400">No users found.</p>
+              <h2 className="text-lg font-semibold text-gray-300">
+                Search for friends
+              </h2>
+
+              <p className="text-sm max-w-sm">
+                Type a username or name to find people you want to follow.
+              </p>
+            </div>
           )}
 
-          {results.map((user) => (
-            <FollowCard
-              key={user.id}
-              {...user}
-              onToggleFollow={handleToggleFollow}
-            />
-          ))}
+          {/* LOADING */}
+          {keyword && loading && <p className="text-gray-400">Loading...</p>}
+
+          {/* NO RESULT */}
+          {keyword && !loading && results.length === 0 && (
+            <p className="text-gray-400 text-center mt-6">No users found.</p>
+          )}
+
+          {/* SEARCH RESULTS */}
+          {keyword &&
+            results.map((user) => (
+              <FollowCard
+                key={user.id}
+                {...user}
+                onToggleFollow={handleToggleFollow}
+              />
+            ))}
         </div>
       </main>
 

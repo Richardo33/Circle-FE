@@ -6,9 +6,10 @@ interface ThreadContentProps {
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function ThreadContent({ content, image }: ThreadContentProps) {
+  console.log("CONTENT:", JSON.stringify(content));
   return (
     <div className="mt-2">
-      <p>{content}</p>
+      <p style={{ whiteSpace: "pre-line" }}>{content}</p>
       {image && (
         <div className="mt-3">
           <img

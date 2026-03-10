@@ -31,14 +31,14 @@ function ThreadCard({ thread, onReply }: ThreadCardProps) {
       const res = await axios.post(
         `${BASE_URL}/api/v1/like/${thread.id}`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       dispatch(
         setLikes({
           threadId: thread.id,
           liked: res.data.liked,
           count: res.data.likes,
-        })
+        }),
       );
     } catch (err) {
       console.error(err);
@@ -82,7 +82,9 @@ function ThreadCard({ thread, onReply }: ThreadCardProps) {
               </p>
             </div>
 
-            {thread.content && <p className="mt-2">{thread.content}</p>}
+            {thread.content && (
+              <p className="mt-2 whitespace-pre-line">{thread.content}</p>
+            )}
 
             {threadImageUrl && (
               <div className="mt-3">
@@ -103,7 +105,7 @@ function ThreadCard({ thread, onReply }: ThreadCardProps) {
               <Heart
                 size={18}
                 className={
-                  likeState?.liked ?? thread.isLiked
+                  (likeState?.liked ?? thread.isLiked)
                     ? "fill-red-500 text-red-500"
                     : ""
                 }

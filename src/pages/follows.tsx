@@ -17,7 +17,7 @@ interface ApiFollowUser {
 
 export default function Follows() {
   const [activeTab, setActiveTab] = useState<"followers" | "following">(
-    "followers"
+    "followers",
   );
   const [users, setUsers] = useState<FollowUserType[]>([]);
 
@@ -35,7 +35,7 @@ export default function Follows() {
           full_name: u.full_name,
           profile_picture: u.profile_picture ?? null,
           isFollowing: u.isFollowing,
-        })
+        }),
       );
 
       setUsers(data);
@@ -50,19 +50,19 @@ export default function Follows() {
 
   const handleToggleFollow = async (
     userId: string,
-    currentlyFollowing: boolean
+    currentlyFollowing: boolean,
   ) => {
     try {
       await axios.post(
         `${BASE_URL}/api/v1/follows`,
         { targetId: userId },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       setUsers((prev) =>
         prev.map((u) =>
-          u.id === userId ? { ...u, isFollowing: !currentlyFollowing } : u
-        )
+          u.id === userId ? { ...u, isFollowing: !currentlyFollowing } : u,
+        ),
       );
     } catch (err) {
       console.error("Failed to toggle follow:", err);
@@ -79,7 +79,7 @@ export default function Follows() {
       </div>
 
       <main className="col-span-6">
-        <div className="sticky top-0 z-10 bg-[#1d1d1d]">
+        <div className="sticky top-0 z-10 ">
           <div className="px-5 pb-3 pt-2.5">
             <h1 className="text-3xl font-bold">Follows</h1>
           </div>

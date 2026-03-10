@@ -40,7 +40,7 @@ function Login() {
       const res = await axios.post<LoginApi>(
         `${API_BASE}/api/v1/auth/login`,
         form,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       const d = res.data.data;
@@ -78,13 +78,13 @@ function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen px-8">
       <div className="w-full max-w-md space-y-4">
-        <div>
+        <Link to="/">
           <img
             src={Logo}
             alt="Logo"
             className="w-[108px] h-auto object-contain"
           />
-        </div>
+        </Link>
         <h1 className="text-3xl font-semibold text-white">Login to Circle</h1>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <Input
@@ -104,14 +104,14 @@ function Login() {
             required
             onChange={handleChange}
           />
-          <div className="text-right">
+          {/* <div className="text-right">
             <Link
               to="/forgetPassword"
               className="text-sm text-white hover:underline"
             >
               Forgot password
             </Link>
-          </div>
+          </div> */}
           <Button
             type="submit"
             className="w-full py-6 font-semibold text-2xl hover:bg-green-500 text-white rounded-4xl cursor-pointer"
